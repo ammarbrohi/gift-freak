@@ -1,0 +1,26 @@
+{
+  "name": "final-project-dirkconinx",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dev-bootcamp-2019/final-project-dirkconinx.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dev-bootcamp-2019/final-project-dirkconinx/issues"
+  },
+  "homepage": "https://github.com/dev-bootcamp-2019/final-project-dirkconinx#readme",
+  "dependencies": {
+    "openzeppelin-solidity": "2.0.0"
+  }
+}
