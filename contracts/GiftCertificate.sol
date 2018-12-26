@@ -14,6 +14,21 @@ contract GiftCertificate is Ownable, ERC721Full, ERC721Pausable {
   address _stabletoken_addr;
   mapping (uint256 => uint256 ) _values;
 
+  event Fund(
+    address from,
+    uint256 ammount
+  );
+  event Issue(
+    address to,
+    uint256 ammount,
+    uint256 ID
+  );
+  event Redeem(
+    uint256 ID,
+    address to,
+    uint256 ammount
+  );
+
   constructor( string name, string symbol, uint256 rate, address stabletoken_addr) ERC721Full(name, symbol) public {
     require(rate % 10 == 0, 'The bonus percentage must be multiples of 10.');
     _rate = rate;
@@ -24,10 +39,11 @@ contract GiftCertificate is Ownable, ERC721Full, ERC721Pausable {
   * requires the ERC20 to be approved for this contract at least for the ammount requested
   * @param ammount the user supplied ammount of ERC20 tokens, we only accept multiples of 50.
   */
-  function fund(uint256 ammount) onlyOwner public whenNotPaused{
+  function fund(uint256 ammount) onlyOwner public whenNotPaused {
     StableToken st = StableToken(_stabletoken_addr);
     require(ammount <= st.allowance(msg.sender, this), "You did not approve this ammount.");
     st.transferFrom(msg.sender, address(this), ammount);
+    emit Fund(msg.sender, ammount);
   }
 
   /*
@@ -49,10 +65,11 @@ contract GiftCertificate is Ownable, ERC721Full, ERC721Pausable {
     _values[ID] = ammount.add(bonus);
     _reserved = _reserved.add(_values[ID]);
 //    assert(_reserved <= st.balanceOf(this));
-    _mint(msg.sender, ID);
+    super._mint(msg.sender, ID);
     //TODO make it safe for when the approve was not done or balanceOf not suficient.
     //What happens in such a case, would this revert ? I guess it depends on the ERC20 implementation ?
     st.transferFrom(msg.sender, address(this), ammount);
+    emit Issue(msg.sender, ammount, ID);
     return ID;
   }
 
@@ -69,6 +86,7 @@ contract GiftCertificate is Ownable, ERC721Full, ERC721Pausable {
     super._burn(msg.sender, ID);
     StableToken st = StableToken(_stabletoken_addr);
     st.transfer(msg.sender, value);
+    emit Redeem( ID,  msg.sender, value);
   }
 
 }
