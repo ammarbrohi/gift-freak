@@ -17,57 +17,65 @@ contract('GiftCertificate', function(accounts) {
   it("owner prints some STBL", async() => {
 
     const stableToken  = await StableToken.deployed()
-    const ammount = 100
-    const tx = await stableToken.mint(owner, ammount)
+    const decimals = await stableToken.decimals()
+    const amount = 100 * 10**decimals
+    const tx = await stableToken.mint(owner, amount)
     const result = await stableToken.balanceOf.call(owner)
-    assert.equal(result, ammount, 'the balanceOf the owner does not match the requested STBL tokens')
+    assert.equal(result, amount, 'the balanceOf the owner does not match the requested STBL tokens')
     const total = await stableToken.totalSupply.call()
-    assert.equal(total, 100, 'the totalSupply of STBL tokens after issuance to owner should be 100')
+    assert.equal(total, amount, 'the totalSupply of STBL tokens after issuance to owner should be 100')
   })
 
   it("Alice prints some STBL", async() => {
     const stableToken  = await StableToken.deployed()
-    const ammount = 100
-    const tx = await stableToken.mint(alice, ammount)
+    const decimals = await stableToken.decimals()
+    const amount = 100 * 10**decimals
+    const tx = await stableToken.mint(alice, amount)
     const result = await stableToken.balanceOf.call(alice)
-    assert.equal(result, ammount, 'the balanceOf alice does not match the requested STBL tokens:')
+    assert.equal(result, amount, 'the balanceOf alice does not match the requested STBL tokens:')
   })
 
   it("TotalSupply of STBL should be 200", async() => {
     const stableToken  = await StableToken.deployed()
+    const decimals = await stableToken.decimals()
+    const amount = 200 * 10**decimals
     const result = await stableToken.totalSupply()
-    assert.equal(result, 200, 'the totalSupply of STBL tokens after distribution should be 200 : ')
+    assert.equal(result, amount, 'the totalSupply of STBL tokens after distribution should be 200 : ')
   })
 
   it("Owner funds GFT with STBL", async() => {
     const stableToken  = await StableToken.deployed()
     const giftCertificate  = await GiftCertificate.deployed()
-    const ammount = 100
+    const decimals = await stableToken.decimals()
+    const amount = 100 * 10**decimals
+
 
     const balance_start = await stableToken.balanceOf.call(giftCertificate.address)
     assert.equal(balance_start, 0, 'the GiftCertificate contract\'s balance before funding should be 0')
 
-    const tx1 = await stableToken.approve(giftCertificate.address, ammount, {from: owner})
-    await giftCertificate.fund(ammount, {from: owner})
+    const tx1 = await stableToken.approve(giftCertificate.address, amount, {from: owner})
+    await giftCertificate.fund(amount, {from: owner})
     const balance_funded = await stableToken.balanceOf.call(giftCertificate.address)
-    assert.equal(balance_funded, ammount, 'the GiftCertificate contract\'s balance after funding should be 100')
+    assert.equal(balance_funded, amount, 'the GiftCertificate contract\'s balance after funding should be 100')
 
   })
 
   it("Alice buys some GFT", async() => {
     const stableToken  = await StableToken.deployed()
-    const ammount = 100
+    const decimals = await stableToken.decimals()
+    const amount = 100 * 10**decimals
+
 
     const giftCertificate  = await GiftCertificate.deployed()
     const result = await giftCertificate.totalSupply()
     assert.equal(result, 0, 'the totalSupply of GFT tokens at the start is not 0')
 
-    const tx3 = await stableToken.approve(giftCertificate.address, ammount, {from: alice})
-    const tx4 = await giftCertificate.issue(ammount, {from: alice})
+    const tx3 = await stableToken.approve(giftCertificate.address, amount, {from: alice})
+    const tx4 = await giftCertificate.issue(amount, {from: alice})
     const stbl_balance_alice = await stableToken.balanceOf(alice)
     assert.equal(stbl_balance_alice, 0, 'alice\'s STBL balance should now be 0.')
     const balance_after_issuance = await stableToken.balanceOf.call(giftCertificate.address)
-    assert.equal(balance_after_issuance.toNumber(), 200, 'the GiftCertificate contract\'s STBL balance after alice buys one GFT for 100 STBL should be 200')
+    assert.equal(balance_after_issuance.toNumber(), 2*amount, 'the GiftCertificate contract\'s STBL balance after alice buys one GFT for 100 STBL should be 200')
     const gft_total_supply_after_issuance = await giftCertificate.totalSupply.call()
     assert.equal(gft_total_supply_after_issuance.toNumber(), 1, 'The total supply of GFT should be 1 after issuance.')
   })
@@ -89,15 +97,18 @@ contract('GiftCertificate', function(accounts) {
   it("Bob redeems GFT", async() => {
     const stableToken  = await StableToken.deployed()
     const giftCertificate  = await GiftCertificate.deployed()
+    const decimals = await stableToken.decimals()
+    const amount1 = 110 * 10**decimals
+    const amount2 = 90 * 10**decimals
 
     const id = await giftCertificate.tokenOfOwnerByIndex(bob, 0)
     const tx1 = giftCertificate.redeem(id, {from: bob})
     const gft_total_supply = await giftCertificate.totalSupply.call()
     assert.equal(gft_total_supply, 0, 'The total supply of GFT should be 0 after redeem.')
     const stbl_balance_bob = await stableToken.balanceOf(bob)
-    assert.equal(stbl_balance_bob, 110, 'Bob\'s STBL balance should now be 110.')
+    assert.equal(stbl_balance_bob, amount1, 'Bob\'s STBL balance should now be 110.')
     const stbl_balance_gft_contract = await stableToken.balanceOf.call(giftCertificate.address)
-    assert.equal(stbl_balance_gft_contract, 90, 'the GiftCertificate contract\'s STBL balance after Bob redeems the GFT for 110 STBL should be 90')
+    assert.equal(stbl_balance_gft_contract, amount2, 'the GiftCertificate contract\'s STBL balance after Bob redeems the GFT for 110 STBL should be 90')
   })
 
 });

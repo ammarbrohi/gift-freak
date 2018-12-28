@@ -7,7 +7,7 @@ import truffleContract from "truffle-contract";
 import "./App.css";
 
 class App extends Component {
-  state = { web3: null, stbl_total_supply: 9999, stble_my_supply: 9999, gft_stbl_balance: 9999, gft_total_supply: 9999, gft_my_supply: 9999, gft_contract_owner: null, current_network: "", current_account: null, accounts: null, stbl_contract: null, gft_contract: null };
+  state = { web3: null, decimals: 18, stbl_total_supply: 9999, stble_my_supply: 9999, gft_stbl_balance: 9999, gft_total_supply: 9999, gft_my_supply: 9999, gft_contract_owner: null, current_network: "", current_account: null, accounts: null, stbl_contract: null, gft_contract: null };
 
   componentDidMount = async () => {
     try {
@@ -42,12 +42,14 @@ class App extends Component {
       const StblContract = truffleContract(StableTokenContract);
       StblContract.setProvider(web3.currentProvider);
       const stbl_instance = await StblContract.deployed();
+      const decimals = (await stbl_instance.decimals()).toNumber()
+
       // Get the STBL contract instance.
       const GftContract = truffleContract(GiftCertificateContract);
       GftContract.setProvider(web3.currentProvider);
       const gft_instance = await GftContract.deployed();
       const gft_contract_owner = await gft_instance.owner();
-      await this.setState({web3: web3, gft_contract_owner: gft_contract_owner, current_network: network_name, current_account: current_account, accounts: accounts, stbl_contract: stbl_instance, gft_contract: gft_instance}, this.setEventMonitors);
+      await this.setState({web3: web3, decimals: decimals, gft_contract_owner: gft_contract_owner, current_network: network_name, current_account: current_account, accounts: accounts, stbl_contract: stbl_instance, gft_contract: gft_instance}, this.setEventMonitors);
       await this.updateState();
 
     } catch (error) {
@@ -77,7 +79,9 @@ class App extends Component {
     } else {
       new_net = "Custom network, id: " + id;
     }
-    this.setState({current_network: new_net});
+    const {stbl_contract} = this.state;
+    const new_decimals = (await stbl_contract.decimals());
+    this.setState({decimals: new_decimals, current_network: new_net});
     this.updateState();
   };
 
@@ -87,12 +91,14 @@ class App extends Component {
   };
 
   updateState = async () =>{
-    const { stbl_total_supply, stble_my_supply, gft_stbl_balance, gft_total_supply, gft_my_supply, current_account, stbl_contract, gft_contract}  = this.state;
-    const new_stbl_total_supply = (await stbl_contract.totalSupply()).toNumber();
-    const new_stble_my_supply = (await stbl_contract.balanceOf(current_account)).toNumber();;
-    const new_gft_total_supply = (await gft_contract.totalSupply()).toNumber();
-    const new_gft_my_supply = (await gft_contract.balanceOf(current_account)).toNumber();
-    const new_gft_stbl_balance = (await stbl_contract.balanceOf(gft_contract.address)).toNumber();
+    const { decimals, web3, stbl_total_supply, stble_my_supply, gft_stbl_balance, gft_total_supply, gft_my_supply, current_account, stbl_contract, gft_contract}  = this.state;
+    var BN = web3.utils.BN;
+    const d = new BN(10).pow(new BN(decimals));
+    const new_stbl_total_supply = ((await stbl_contract.totalSupply()).div(d)).toNumber();
+    const new_stble_my_supply =   ((await stbl_contract.balanceOf(current_account)).div(d)).toNumber();
+    const new_gft_total_supply =  ((await gft_contract.totalSupply()).div(d)).toNumber();
+    const new_gft_my_supply =     (await gft_contract.balanceOf(current_account)).toNumber();
+    const new_gft_stbl_balance =  ((await stbl_contract.balanceOf(gft_contract.address)).div(d)).toNumber();
     //only update if there is a state change
     if (new_stbl_total_supply !== stbl_total_supply || new_stble_my_supply !== stble_my_supply || new_gft_total_supply !== gft_total_supply || new_gft_my_supply !== gft_my_supply || new_gft_stbl_balance !== gft_stbl_balance) {
       this.setState({stbl_total_supply: new_stbl_total_supply, stble_my_supply: new_stble_my_supply, gft_stbl_balance: new_gft_stbl_balance, gft_total_supply: new_gft_total_supply, gft_my_supply: new_gft_my_supply});
@@ -103,8 +109,8 @@ class App extends Component {
     event.preventDefault();
     if (this.refs.stbl_ammount.value !== '') {
       //const { stbl_total_supply,stble_my_supply, gft_total_supply, gft_my_supply, current_account, stbl_contract, gft_contract}  = this.state;
-      const {current_account, stbl_contract}  = this.state;
-      await stbl_contract.mint(current_account, parseInt(this.refs.stbl_ammount.value), { from: current_account });
+      const {decimals, current_account, stbl_contract}  = this.state;
+      await stbl_contract.mint(current_account, parseInt(this.refs.stbl_ammount.value * (10**decimals)), { from: current_account });
       this.updateState();
     } else {
       alert('Please specify an ammount of STBL tokens you want to receive.')
@@ -115,9 +121,9 @@ class App extends Component {
     event.preventDefault();
     if (this.refs.fund_ammount.value !== '') {
       //const { stbl_total_supply,stble_my_supply, gft_total_supply, gft_my_supply, current_account, stbl_contract, gft_contract}  = this.state;
-      const {current_account, stbl_contract, gft_contract}  = this.state;
-      await stbl_contract.approve(gft_contract.address, parseInt(this.refs.fund_ammount.value), { from: current_account });
-      await gft_contract.fund(parseInt(this.refs.fund_ammount.value), { from: current_account });
+      const {decimals, current_account, stbl_contract, gft_contract}  = this.state;
+      await stbl_contract.approve(gft_contract.address, parseInt(this.refs.fund_ammount.value) * (10**decimals), { from: current_account });
+      await gft_contract.fund(parseInt(this.refs.fund_ammount.value * (10**decimals)), { from: current_account });
       this.updateState();
     } else {
       alert('Please specify an ammount of STBL tokens to fund the GFT contract with.')
@@ -128,9 +134,9 @@ class App extends Component {
     event.preventDefault();
     if (this.refs.gft_stbl_ammount.value !== '') {
       //const { stbl_total_supply,stble_my_supply, gft_total_supply, gft_my_supply, current_account, stbl_contract, gft_contract}  = this.state;
-      const { current_account, stbl_contract, gft_contract}  = this.state;
-      await stbl_contract.approve(gft_contract.address, parseInt(this.refs.gft_stbl_ammount.value), { from: current_account });
-      const tx = await gft_contract.issue(parseInt(this.refs.gft_stbl_ammount.value), { from: current_account });
+      const { decimals, current_account, stbl_contract, gft_contract}  = this.state;
+      await stbl_contract.approve(gft_contract.address, parseInt(this.refs.gft_stbl_ammount.value * (10**decimals)), { from: current_account });
+      const tx = await gft_contract.issue(parseInt(this.refs.gft_stbl_ammount.value * (10**decimals)), { from: current_account });
       console.log(tx);
       this.updateState();
     } else {
@@ -199,7 +205,7 @@ class App extends Component {
           <div>Total supply of GFT tokens: {this.state.gft_total_supply}</div>
           <div>Your supply of GFT tokens: {this.state.gft_my_supply}</div>
           <div>GFT contract's STBL balance (ie. funds): {this.state.gft_stbl_balance}</div>
-          <p>
+          <p></p>
           <div><form onSubmit={this.get_stbl}>
             <label>Get STBL tokens (they're free, only for this demo). Ammount:
               <input type="text" name="stbl_ammount" ref="stbl_ammount"/>
@@ -213,7 +219,6 @@ class App extends Component {
              <input type="submit" value="Fund" />
           </form>
           </div>
-          </p>
         </div>
       );
 
@@ -231,7 +236,7 @@ class App extends Component {
         <div>Total supply of GFT tokens: {this.state.gft_total_supply}</div>
         <div>Your supply of GFT tokens: {this.state.gft_my_supply}</div>
         <div>GFT contract's STBL balance (ie. funds): {this.state.gft_stbl_balance}</div>
-        <p><div><form onSubmit={this.get_stbl}>
+        <p></p><div><form onSubmit={this.get_stbl}>
           <label>Get STBL tokens (they're free, only for this demo).
           Ammount:
             <input type="text" name="stbl_ammount" ref="stbl_ammount"/>
@@ -255,7 +260,6 @@ class App extends Component {
           </label>
            <input type="submit" value="Redeem" />
         </form></div>
-        </p>
       </div>
     );
   }
