@@ -84,7 +84,6 @@ contract('GiftCertificate', function(accounts) {
     const stableToken  = await StableToken.deployed()
     const giftCertificate  = await GiftCertificate.deployed()
     const id = await giftCertificate.tokenOfOwnerByIndex(alice, 0)
-    console.log("ID of Alice's GFT token: "+ id)
     const tx1 = await giftCertificate.approve(bob, id, {from: alice})
     //const tx2 = await giftCertificate.safeTransferFrom(alice, bob, id, {from: bob})
     const tx2 = await giftCertificate.safeTransferFrom(alice, bob, id, {from: alice})
@@ -101,8 +100,9 @@ contract('GiftCertificate', function(accounts) {
     const amount1 = 110 * 10**decimals
     const amount2 = 90 * 10**decimals
 
+    const tx1 = await giftCertificate.addShop(bob, {from: owner})
     const id = await giftCertificate.tokenOfOwnerByIndex(bob, 0)
-    const tx1 = giftCertificate.redeem(id, {from: bob})
+    const tx2 = giftCertificate.redeem(id, {from: bob})
     const gft_total_supply = await giftCertificate.totalSupply.call()
     assert.equal(gft_total_supply, 0, 'The total supply of GFT should be 0 after redeem.')
     const stbl_balance_bob = await stableToken.balanceOf(bob)
