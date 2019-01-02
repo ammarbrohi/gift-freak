@@ -1,12 +1,8 @@
-const { decodeLogs } = require('../helpers/decodeLogs');
+const expectEvent = require('../helpers/expectEvent');
 const { ZERO_ADDRESS } = require('../helpers/constants');
 const SimpleToken = artifacts.require('SimpleToken');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 contract('SimpleToken', function ([_, creator]) {
   beforeEach(async function () {
@@ -31,12 +27,10 @@ contract('SimpleToken', function ([_, creator]) {
 
     creatorBalance.should.be.bignumber.equal(totalSupply);
 
-    const receipt = await web3.eth.getTransactionReceipt(this.token.transactionHash);
-    const logs = decodeLogs(receipt.logs, SimpleToken, this.token.address);
-    logs.length.should.equal(1);
-    logs[0].event.should.equal('Transfer');
-    logs[0].args.from.valueOf().should.equal(ZERO_ADDRESS);
-    logs[0].args.to.valueOf().should.equal(creator);
-    logs[0].args.value.should.be.bignumber.equal(totalSupply);
+    await expectEvent.inConstruction(this.token, 'Transfer', {
+      from: ZERO_ADDRESS,
+      to: creator,
+      value: totalSupply,
+    });
   });
 });

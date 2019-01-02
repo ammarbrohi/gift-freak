@@ -1,11 +1,7 @@
 const expectEvent = require('../helpers/expectEvent');
-const { ethGetBalance } = require('../helpers/web3');
+const { balanceDifference } = require('../helpers/balanceDifference');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../helpers/setup');
 
 function shouldBehaveLikeMintedCrowdsale ([_, investor, wallet, purchaser], rate, value) {
   const expectedTokenAmount = rate.mul(value);
@@ -35,10 +31,9 @@ function shouldBehaveLikeMintedCrowdsale ([_, investor, wallet, purchaser], rate
       });
 
       it('should forward funds to wallet', async function () {
-        const pre = await ethGetBalance(wallet);
-        await this.crowdsale.sendTransaction({ value, from: investor });
-        const post = await ethGetBalance(wallet);
-        post.minus(pre).should.be.bignumber.equal(value);
+        (await balanceDifference(wallet, () =>
+          this.crowdsale.sendTransaction({ value, from: investor }))
+        ).should.be.bignumber.equal(value);
       });
     });
   });

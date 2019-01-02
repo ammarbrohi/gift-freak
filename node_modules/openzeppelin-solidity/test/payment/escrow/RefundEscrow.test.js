@@ -1,14 +1,10 @@
 const shouldFail = require('../../helpers/shouldFail');
 const expectEvent = require('../../helpers/expectEvent');
-const { ethGetBalance } = require('../../helpers/web3');
+const { balanceDifference } = require('../../helpers/balanceDifference');
 const { ether } = require('../../helpers/ether');
 const { ZERO_ADDRESS } = require('../../helpers/constants');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 const RefundEscrow = artifacts.require('RefundEscrow');
 
@@ -73,11 +69,9 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
       });
 
       it('allows beneficiary withdrawal', async function () {
-        const beneficiaryInitialBalance = await ethGetBalance(beneficiary);
-        await this.escrow.beneficiaryWithdraw();
-        const beneficiaryFinalBalance = await ethGetBalance(beneficiary);
-
-        beneficiaryFinalBalance.sub(beneficiaryInitialBalance).should.be.bignumber.equal(amount * refundees.length);
+        (await balanceDifference(beneficiary, () =>
+          this.escrow.beneficiaryWithdraw()
+        )).should.be.bignumber.equal(amount * refundees.length);
       });
 
       it('prevents entering the refund state', async function () {
@@ -109,11 +103,9 @@ contract('RefundEscrow', function ([_, primary, beneficiary, refundee1, refundee
 
       it('refunds refundees', async function () {
         for (const refundee of [refundee1, refundee2]) {
-          const refundeeInitialBalance = await ethGetBalance(refundee);
-          await this.escrow.withdraw(refundee, { from: primary });
-          const refundeeFinalBalance = await ethGetBalance(refundee);
-
-          refundeeFinalBalance.sub(refundeeInitialBalance).should.be.bignumber.equal(amount);
+          (await balanceDifference(refundee, () =>
+            this.escrow.withdraw(refundee, { from: primary }))
+          ).should.be.bignumber.equal(amount);
         }
       });
 

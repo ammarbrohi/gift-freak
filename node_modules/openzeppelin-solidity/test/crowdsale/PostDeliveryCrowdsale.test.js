@@ -1,13 +1,8 @@
-const { advanceBlock } = require('../helpers/advanceToBlock');
 const time = require('../helpers/time');
 const shouldFail = require('../helpers/shouldFail');
 const { ether } = require('../helpers/ether');
 
-const BigNumber = web3.BigNumber;
-
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+const { BigNumber } = require('../helpers/setup');
 
 const PostDeliveryCrowdsaleImpl = artifacts.require('PostDeliveryCrowdsaleImpl');
 const SimpleToken = artifacts.require('SimpleToken');
@@ -18,7 +13,7 @@ contract('PostDeliveryCrowdsale', function ([_, investor, wallet, purchaser]) {
 
   before(async function () {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
-    await advanceBlock();
+    await time.advanceBlock();
   });
 
   beforeEach(async function () {

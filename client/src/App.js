@@ -13,6 +13,7 @@ class App extends Component {
     try {
       // Get network provider and web3 instance.
       const web3 = await getWeb3();
+      console.log(web3.version);
 
       // Use web3 to get the user's accounts.
       const accounts = await web3.eth.getAccounts();
@@ -94,8 +95,6 @@ class App extends Component {
 
   updateState = async () =>{
     const { is_paused, is_shop, decimals, web3, stbl_total_supply, stble_my_supply, gft_stbl_balance, gft_total_supply, gft_my_supply, gft_contract_owner, current_account, stbl_contract, gft_contract}  = this.state;
-    console.log('updateState->current_account (before): ' + current_account);
-    console.log('updateState->is_shop (before): ' + current_account);
     var BN = web3.utils.BN;
     const d = new BN(10).pow(new BN(decimals));
     const new_stbl_total_supply = ((await stbl_contract.totalSupply()).div(d)).toNumber();
@@ -104,15 +103,12 @@ class App extends Component {
     const new_gft_my_supply =     (await gft_contract.balanceOf(current_account)).toNumber();
     const new_gft_stbl_balance =  ((await stbl_contract.balanceOf(gft_contract.address)).div(d)).toNumber();
     const new_is_paused = (await gft_contract.paused())
-    console.log('updateState->Paused state is: ' + new_is_paused)
     var new_is_shop;
     //owner automaticallly has the ShopRole but should not be seen as a shop
     if (gft_contract_owner !== current_account) {
        new_is_shop = await gft_contract.isShop(current_account);
-      console.log('updateState->new_is_shop: ' + new_is_shop);
     } else {
       new_is_shop = false;
-      console.log('updateState->new_is_shop: set to false becaus is Owner');
     }
 
     //only update if there is a state change
@@ -127,7 +123,6 @@ class App extends Component {
       //const { stbl_total_supply,stble_my_supply, gft_total_supply, gft_my_supply, current_account, stbl_contract, gft_contract}  = this.state;
       const {decimals, current_account, stbl_contract}  = this.state;
       await stbl_contract.mint(current_account, parseInt(this.refs.stbl_amount.value * (10**decimals)), { from: current_account });
-      console.log('get_stbl: ' + current_account);
       this.updateState();
     } else {
       alert('Please specify an amount of STBL tokens you want to receive.')
@@ -140,7 +135,9 @@ class App extends Component {
       //const { stbl_total_supply,stble_my_supply, gft_total_supply, gft_my_supply, current_account, stbl_contract, gft_contract}  = this.state;
       const {decimals, current_account, stbl_contract, gft_contract}  = this.state;
       await stbl_contract.approve(gft_contract.address, parseInt(this.refs.fund_amount.value) * (10**decimals), { from: current_account });
-      await gft_contract.fund(parseInt(this.refs.fund_amount.value * (10**decimals)), { from: current_account });
+      console.log('fund_gft: ');
+      const tx = await gft_contract.fund(parseInt(this.refs.fund_amount.value * (10**decimals)), { from: current_account });
+      console.log(tx);
       this.updateState();
     } else {
       alert('Please specify an amount of STBL tokens to fund the GFT contract with.')
@@ -149,8 +146,10 @@ class App extends Component {
 
   refund_gft = async (event) =>{
     event.preventDefault();
-      const {decimals, current_account, stbl_contract, gft_contract}  = this.state;
-      await gft_contract.refund({from: current_account});
+      const {current_account, gft_contract}  = this.state;
+      console.log('refund_gft: ');
+      const tx = await gft_contract.refund({from: current_account});
+      console.log(tx);
       this.updateState();
   }
 
@@ -160,6 +159,7 @@ class App extends Component {
       //const { stbl_total_supply,stble_my_supply, gft_total_supply, gft_my_supply, current_account, stbl_contract, gft_contract}  = this.state;
       const { decimals, current_account, stbl_contract, gft_contract}  = this.state;
       await stbl_contract.approve(gft_contract.address, parseInt(this.refs.gft_stbl_amount.value * (10**decimals)), { from: current_account });
+      console.log('get_gft: ');
       const tx = await gft_contract.issue(parseInt(this.refs.gft_stbl_amount.value * (10**decimals)), { from: current_account });
       console.log(tx);
       this.updateState();
@@ -182,7 +182,7 @@ class App extends Component {
       console.log('approve: ');
       tx = await gft_contract.approve(web3.utils.toChecksumAddress(this.refs.shop_address.value), ID, { from: current_account });
       console.log(tx);
-      console.log('TransactionsafeTransferFrom: ');
+      console.log('safeTransferFrom: ');
       tx = await gft_contract.safeTransferFrom(current_account, web3.utils.toChecksumAddress(this.refs.shop_address.value), ID, { from: current_account });
       console.log(tx);
       this.updateState();

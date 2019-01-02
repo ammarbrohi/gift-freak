@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import "openzeppelin-solidity/contracts/access/Roles.sol";
 
@@ -8,7 +8,7 @@ contract ShopRole {
   event ShopAdded(address indexed account);
   event ShopRemoved(address indexed account);
 
-  Roles.Role private Shops;
+  Roles.Role private _shops;
 
   constructor() internal {
     _addShop(msg.sender);
@@ -20,7 +20,7 @@ contract ShopRole {
   }
 
   function isShop(address account) public view returns (bool) {
-    return Shops.has(account);
+    return _shops.has(account);
   }
 
   function addShop(address account) public onlyShop {
@@ -32,12 +32,12 @@ contract ShopRole {
   }
 
   function _addShop(address account) internal {
-    Shops.add(account);
+    _shops.add(account);
     emit ShopAdded(account);
   }
 
   function _removeShop(address account) internal {
-    Shops.remove(account);
+    _shops.remove(account);
     emit ShopRemoved(account);
   }
 }

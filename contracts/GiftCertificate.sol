@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.5.0;
 
 import 'openzeppelin-solidity/contracts/ownership/Ownable.sol';
 import 'openzeppelin-solidity/contracts/token/ERC721/ERC721Full.sol';
@@ -35,7 +35,7 @@ contract GiftCertificate is Ownable, ERC721Full, ERC721Pausable, ShopRole {
     uint256 amount
   );
 
-  constructor( string name, string symbol, uint256 rate, address stabletoken_addr) ERC721Full(name, symbol) public {
+  constructor( string memory name, string memory symbol, uint256 rate, address stabletoken_addr) ERC721Full(name, symbol) public {
     require(rate % 10 == 0, 'The bonus percentage must be multiples of 10.');
     _rate = rate;
     _stabletoken_addr = stabletoken_addr;
@@ -45,9 +45,9 @@ contract GiftCertificate is Ownable, ERC721Full, ERC721Pausable, ShopRole {
   * requires the ERC20 to be approved for this contract at least for the amount requested
   * @param amount the user supplied amount of ERC20 tokens, we only accept multiples of 50.
   */
-  function fund(uint256 amount) onlyOwner public whenNotPaused {
+  function fund(uint256 amount) public onlyOwner whenNotPaused {
     StableToken st = StableToken(_stabletoken_addr);
-    require(amount <= st.allowance(msg.sender, this), "You did not approve this amount.");
+    require(amount <= st.allowance(msg.sender, address(this)), "You did not approve this amount.");
     st.transferFrom(msg.sender, address(this), amount);
     emit Fund(msg.sender, amount);
   }
@@ -62,12 +62,12 @@ contract GiftCertificate is Ownable, ERC721Full, ERC721Pausable, ShopRole {
     require(amount % 10 == 0, 'You must buy in multiples of 10.');
     StableToken st = StableToken(_stabletoken_addr);
     uint256 ID = tokenId.next();
-    uint256 balance = st.balanceOf(this);
+    uint256 balance = st.balanceOf(address(this));
     uint256 available = balance.sub(_reserved);
     //as both amount and _rate are multiples of 10 this should always result in an int.
     uint256 bonus = amount.mul(_rate).div(100);
     require(bonus <= available, "We cannot issue a gift certificate for this value as it would exceed our budget.");
-    require(amount <= st.allowance(msg.sender, this), "You did not approve this amount.");
+    require(amount <= st.allowance(msg.sender, address(this)), "You did not approve this amount.");
     _values[ID] = amount.add(bonus);
     _reserved = _reserved.add(_values[ID]);
 //    assert(_reserved <= st.balanceOf(this));

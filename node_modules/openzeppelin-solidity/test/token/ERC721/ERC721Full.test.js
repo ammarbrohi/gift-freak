@@ -2,12 +2,9 @@ const shouldFail = require('../../helpers/shouldFail');
 const { shouldBehaveLikeERC721 } = require('./ERC721.behavior');
 const { shouldSupportInterfaces } = require('../../introspection/SupportsInterface.behavior');
 
-const BigNumber = web3.BigNumber;
 const ERC721FullMock = artifacts.require('ERC721FullMock.sol');
 
-require('chai')
-  .use(require('chai-bignumber')(BigNumber))
-  .should();
+require('../../helpers/setup');
 
 contract('ERC721Full', function ([
   creator,
@@ -26,7 +23,6 @@ contract('ERC721Full', function ([
     owner,
     newOwner,
     another,
-    anyone,
   ] = accounts;
 
   beforeEach(async function () {
@@ -73,36 +69,6 @@ contract('ERC721Full', function ([
       });
     });
 
-    describe('removeTokenFrom', function () {
-      it('reverts if the correct owner is not passed', async function () {
-        await shouldFail.reverting(
-          this.token.removeTokenFrom(anyone, firstTokenId, { from: owner })
-        );
-      });
-
-      context('once removed', function () {
-        beforeEach(async function () {
-          await this.token.removeTokenFrom(owner, firstTokenId, { from: owner });
-        });
-
-        it('has been removed', async function () {
-          await shouldFail.reverting(this.token.tokenOfOwnerByIndex(owner, 1));
-        });
-
-        it('adjusts token list', async function () {
-          (await this.token.tokenOfOwnerByIndex(owner, 0)).toNumber().should.be.equal(secondTokenId);
-        });
-
-        it('adjusts owner count', async function () {
-          (await this.token.balanceOf(owner)).toNumber().should.be.equal(1);
-        });
-
-        it('does not adjust supply', async function () {
-          (await this.token.totalSupply()).toNumber().should.be.equal(2);
-        });
-      });
-    });
-
     describe('metadata', function () {
       const sampleUri = 'mock://mytoken';
 
@@ -135,6 +101,15 @@ contract('ERC721Full', function ([
 
       it('reverts when querying metadata for non existent token id', async function () {
         await shouldFail.reverting(this.token.tokenURI(nonExistentTokenId));
+      });
+    });
+
+    describe('tokensOfOwner', function () {
+      it('returns total tokens of owner', async function () {
+        const tokenIds = await this.token.tokensOfOwner(owner);
+        tokenIds.length.should.equal(2);
+        tokenIds[0].should.be.bignumber.equal(firstTokenId);
+        tokenIds[1].should.be.bignumber.equal(secondTokenId);
       });
     });
 
