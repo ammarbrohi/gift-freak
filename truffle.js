@@ -13,11 +13,11 @@
  */
 
 module.exports = {
-  compilers: {
-   solc: {
-     version: "0.4.25"
-   }
- },
+//  compilers: {
+//   solc: {
+//     version: "0.4.25"
+//   }
+// },
 
   networks: {
     development: {
