@@ -4,9 +4,12 @@
 
 The problem when you buy a gift certificate in a shop is that once you pay for it the shop owner already has the money but you are not sure he will honor the agreement and actually let you purchase items according to the value of the certificate. The shop could also go out of business and you would lose the value of the certificate. And all this without the shop vesting any money in this setup.
 
-What this `ERC721` token seeks to solve is that a shop owner only receives the money once you spend the certificate. It also includes a functionality for the shop owner or promoter to give the customer a discount or rather a bonus value on top of the purchase price. For example a City could fund this Token with a 10% bonus so that a customer who purchased a gift certificate of 100 USD would actually be able to spend 110 USD at a shop in the city (a whitelist of shop addresses)
+What this `ERC721` token seeks to solve is that a shop owner only receives the money once you spend the certificate. It also includes a functionality for the shop owner or promoter to give the customer a discount or rather a bonus value on top of the purchase price. For example a City could fund this Token with a 10% bonus so that a customer who purchased a gift certificate of 100 USD would actually be able to spend 110 USD at a approved shop in the city.
 
-Note: due to time condtraints I have not yet beeen able to implement a whitelist for shop owners yet. Also the idea of a user being able to redeem the certificate when it expires has not yet been implemented. Currently anyone can redeem the total value of the certificate, including the buyer of the certificate which of course makes this not production ready yet.
+I have implemented a whitelist to allow only shops to redeem the Gift Certificates. As redeeming them gets you a 10% bonus, we don't want everyone to be able to redeem their own Gift Certificates and get free money. The whitelist is maintained by the owner of the ERC721 contract. Shop owners can renounce their 'membership'.
+
+Things still to be added:
+- implement a validity period for each certificate. This time period would allow a customer to redeem the certificate without the bonus for instance in the case there are not enough participating shops anymore.
 
 ## install
 
@@ -30,7 +33,7 @@ npm list -g truffle
 To uninstall Truffle v5 and reinstall v4:
 ```bash
 npm remove -g truffle
-npm install -g truffle@4.1.15
+npm install -g truffle
 ```
 Note: if you're having problems with (sudo related) access rights regarding npm I highly recommend [this guide](https://www.nearform.com/blog/how-to-manage-node-js-sudo-free-with-nvm/)
 
@@ -78,19 +81,26 @@ openzeppelin-solidity/contracts/drafts/Counter.sol:15:1: The shadowed declaratio
 library Counter {
 ^ (Relevant source part starts here and spans across multiple lines).
 
-  Contract: GiftCertificate
-    ✓ TotalSupply of STBL at the start should be 0
-    ✓ owner prints some STBL (157ms)
-    ✓ Alice prints some STBL (128ms)
-    ✓ TotalSupply of STBL should be 200 (54ms)
-    ✓ Owner funds GFT with STBL (434ms)
-    ✓ Alice buys some GFT (347ms)
-    ✓ Alice spends GFT with Bob (277ms)
-    ✓ Bob redeems GFT (203ms)
+Contract: StableToken
+  ✓ TotalSupply of STBL at the start should be 0
+  ✓ owner prints some STBL (138ms)
+  ✓ Alice prints some STBL (119ms)
+  ✓ TotalSupply of STBL should be 200 (42ms)
+  ✓ Alice sends owner's STBL to Bob (497ms)
 
-  8 passing (2s)
+Contract: GiftCertificate
+  ✓ print some STBL fior participants (224ms)
+  ✓ Owner funds GFT with STBL (206ms)
+  ✓ Alice buys some GFT (367ms)
+  ✓ Alice spends GFT with Bob (296ms)
+  ✓ Bob redeems GFT (349ms)
+  ✓ Pause contract and redeem (866ms)
 
-truffle(develop)>
+
+11 passing (4s)
+
+truffle(development)>
+
 ```
 Note: the Warnings are native to the OpenZeppelin libraries used.
 
@@ -109,3 +119,5 @@ npm start
 ```
 
 TODO run through the use case.
+
+Note: When you send an ERC721 token with MetaMask, it shows as if it sending X ammount of ERC721 tokens where X is the unique ID of the ERC721 token. (see [issue 5145](https://github.com/MetaMask/metamask-extension/issues/5145) on MetaMask's github)

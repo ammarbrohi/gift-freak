@@ -10,6 +10,8 @@ import './ShopRole.sol';
 
 contract GiftCertificate is Ownable, ERC721Full, ERC721Pausable, ShopRole {
   using Counter for Counter.Counter;
+  using SafeMath for uint256;
+
   Counter.Counter private tokenId;
   uint256 _rate;
   uint256 _reserved;
@@ -70,10 +72,7 @@ contract GiftCertificate is Ownable, ERC721Full, ERC721Pausable, ShopRole {
     require(amount <= st.allowance(msg.sender, address(this)), "You did not approve this amount.");
     _values[ID] = amount.add(bonus);
     _reserved = _reserved.add(_values[ID]);
-//    assert(_reserved <= st.balanceOf(this));
     super._mint(msg.sender, ID);
-    //TODO make it safe for when the approve was not done or balanceOf not suficient.
-    //What happens in such a case, would this revert ? I guess it depends on the ERC20 implementation ?
     st.transferFrom(msg.sender, address(this), amount);
     emit Issue(msg.sender, amount, ID);
     return ID;
