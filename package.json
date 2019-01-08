@@ -21,6 +21,6 @@
   },
   "homepage": "https://github.com/dev-bootcamp-2019/final-project-dirkconinx#readme",
   "dependencies": {
-    "openzeppelin-solidity": "^2.1.0-rc.2"
+    "openzeppelin-solidity": "^2.1.1"
   }
 }
