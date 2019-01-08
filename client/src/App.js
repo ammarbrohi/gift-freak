@@ -120,9 +120,11 @@ class App extends Component {
   get_stbl = async (event) =>{
     event.preventDefault();
     if (this.refs.stbl_amount.value !== '') {
-      //const { stbl_total_supply,stble_my_supply, gft_total_supply, gft_my_supply, current_account, stbl_contract, gft_contract}  = this.state;
-      const {decimals, current_account, stbl_contract}  = this.state;
-      await stbl_contract.mint(current_account, parseInt(this.refs.stbl_amount.value * (10**decimals)), { from: current_account });
+      const {web3, decimals, current_account, stbl_contract}  = this.state;
+      var BN = web3.utils.BN;
+      const d = new BN(10).pow(new BN(decimals));
+      const n =  new BN(this.refs.stbl_amount.value).mul(d);
+      await stbl_contract.mint(current_account, n, { from: current_account });
       this.updateState();
     } else {
       alert('Please specify an amount of STBL tokens you want to receive.')
@@ -133,10 +135,13 @@ class App extends Component {
     event.preventDefault();
     if (this.refs.fund_amount.value !== '') {
       //const { stbl_total_supply,stble_my_supply, gft_total_supply, gft_my_supply, current_account, stbl_contract, gft_contract}  = this.state;
-      const {decimals, current_account, stbl_contract, gft_contract}  = this.state;
-      await stbl_contract.approve(gft_contract.address, parseInt(this.refs.fund_amount.value) * (10**decimals), { from: current_account });
+      const {web3, decimals, current_account, stbl_contract, gft_contract}  = this.state;
+      var BN = web3.utils.BN;
+      const d = new BN(10).pow(new BN(decimals));
+      const n =  new BN(this.refs.fund_amount.value).mul(d);
+      await stbl_contract.approve(gft_contract.address, n, { from: current_account });
       console.log('fund_gft: ');
-      const tx = await gft_contract.fund(parseInt(this.refs.fund_amount.value * (10**decimals)), { from: current_account });
+      const tx = await gft_contract.fund(n, { from: current_account });
       console.log(tx);
       this.updateState();
     } else {
@@ -157,10 +162,13 @@ class App extends Component {
     event.preventDefault();
     if (this.refs.gft_stbl_amount.value !== '') {
       //const { stbl_total_supply,stble_my_supply, gft_total_supply, gft_my_supply, current_account, stbl_contract, gft_contract}  = this.state;
-      const { decimals, current_account, stbl_contract, gft_contract}  = this.state;
-      await stbl_contract.approve(gft_contract.address, parseInt(this.refs.gft_stbl_amount.value * (10**decimals)), { from: current_account });
+      const { web3, decimals, current_account, stbl_contract, gft_contract}  = this.state;
+      var BN = web3.utils.BN;
+      const d = new BN(10).pow(new BN(decimals));
+      const n =  new BN(this.refs.gft_stbl_amount.value).mul(d);
+      await stbl_contract.approve(gft_contract.address, n, { from: current_account });
       console.log('get_gft: ');
-      const tx = await gft_contract.issue(parseInt(this.refs.gft_stbl_amount.value * (10**decimals)), { from: current_account });
+      const tx = await gft_contract.issue(n, { from: current_account });
       console.log(tx);
       this.updateState();
     } else {
@@ -367,3 +375,4 @@ class App extends Component {
 }
 
 export default App;
+
