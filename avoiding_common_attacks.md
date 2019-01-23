@@ -1,5 +1,5 @@
 # Reentrancy
-We're not sending ETH to random addresses or calling unknown contracts so we don't have the typical reentrancy risk.
+We're not sending ETH to random addresses or calling unknown contracts so we don't have the _typical_ reentrancy risk.
 Still we use Checks/Effects/Interactions pattern as a good measure.
 
 # OpenZeppelin libraries

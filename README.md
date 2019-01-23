@@ -248,14 +248,24 @@ truffle(development)>
 
 
 The provided front end is a React application.
-In a new terminal run
+Depending on the current state of your system you might need to install node-gyp
+```bash
+sudo apt install node-gyp
+```
+
+Then run
 ```bash
 cd client
-npm start
+npm run start
 ```
 This will open http://localhost:3000/ in your browser.
-You should know see this screen:
+You should know see this screen (if you see 'User' instead of 'Owner', make sure MetaMask is using the BIP39 mnemonic given by ganache-cli and you have selected Account 1) :
 ![](./img/ownergetsSTBL.png "")
+
+If you get a warning, stating 'Failed to load web3, accounts, or contract', make sure MetaMask is connected to Ganache/localhost:8545.
+
+![](./img/FailedToLoad.png "")'
+
 
 First we need some stable coin. For this demo we have supplied our own ERC20 token (STBL), but in reality this would be DAI or some other ERC20 (stable) token.
 Fill in 100 an click on Receive and confirm the transaction; this should increase your supply to 100.
