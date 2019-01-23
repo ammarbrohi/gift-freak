@@ -24,6 +24,14 @@ module.exports = {
       host: "127.0.0.1",
       port: 8545,
       network_id: "*" // Match any network id
+    },
+    rinkeby: {
+      host: "127.0.0.1",
+      port: 8545,
+      from: "0x158b7d90cb978b7cabe5103aabcda1eb021b5516",
+      network_id: "*" ,
+      gas: 4612388
     }
+
   }
 };
