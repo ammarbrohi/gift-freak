@@ -1,9 +1,11 @@
 # Reentrancy
-We're not sending ETH to random addresses or calling unknown contracts so we don't have the _typical_ reentrancy risk.
-Still we use Checks/Effects/Interactions pattern as a good measure.
+We use Checks/Effects/Interactions pattern where possible.
 
-# OpenZeppelin libraries
-We use well audited OpenZepplin libraries for ERC721 and SafeMath.
+# Integer under/overflows
+We use well audited OpenZepplin SafeMath libraries. We also use the OpenZepplin ERC721 library (though not for Integer under/overflows)
+
+# Denial of Service
+We use the withdraw pattern (redeem/redeemPaused) to avoid any locked state due to a failed send.
 
 # Mythril
 We have used mythril to analyze the contracts:
@@ -27,7 +29,7 @@ Estimated Gas Usage: 887 - 982
 This binary add operation can result in integer overflow.
 --------------------
 ```
-As you can see we get a warning on the StableToken, but as this particular function is purely using the \_mint() function on the OpenZeppelin ERC20 contract (which is SafeMath protected) it must be a false positive. Also the StableToken contract is for demo purposes only.
+As you can see we get a warning on the StableToken, but as this particular function is purely using the \_mint() function on the OpenZeppelin ERC20 contract (which is SafeMath protected) it is considered a false positive. Also the StableToken contract is for demo purposes only.
 
 StableToken.sol
 ```solidity
