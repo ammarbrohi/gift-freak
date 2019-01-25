@@ -31,7 +31,7 @@ npm list -g truffle
 └── truffle@5.0.0
 
 ```
-To uninstall Truffle v5 and reinstall v4:
+To uninstall Truffle v4 and reinstall v5:
 ```bash
 npm remove -g truffle
 npm install -g truffle
