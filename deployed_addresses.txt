@@ -7,4 +7,4 @@ GiftCertificates: 0x3Fa2B6F6B1B0b69d1e5C4d36EDd99eeadA12c052
 
 
 React App on IPFS using the Rinkeby contracts:
-https://ipfs.infura.io/ipfs/QmUfCo4R64bdZWXcqisSSc8oYjDQSdzLty1HDC8Zm41gay/
+https://ipfs.infura.io/ipfs/QmYmd5X4BQwLbNDRDG7Jebt8ohZZPzsXNAHddQKpTunfjo/
