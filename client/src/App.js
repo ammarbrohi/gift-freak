@@ -97,11 +97,11 @@ class App extends Component {
     const { is_paused, is_shop, decimals, web3, stbl_total_supply, stble_my_supply, gft_stbl_balance, gft_total_supply, gft_my_supply, gft_contract_owner, current_account, stbl_contract, gft_contract}  = this.state;
     var BN = web3.utils.BN;
     const d = new BN(10).pow(new BN(decimals));
-    const new_stbl_total_supply = ((await stbl_contract.totalSupply()).div(d)).toNumber();
-    const new_stble_my_supply =   ((await stbl_contract.balanceOf(current_account)).div(d)).toNumber();
+    const new_stbl_total_supply = ((await stbl_contract.totalSupply()).div(d));
+    const new_stble_my_supply =   ((await stbl_contract.balanceOf(current_account)).div(d));
     const new_gft_total_supply =  (await gft_contract.totalSupply()).toNumber();
     const new_gft_my_supply =     (await gft_contract.balanceOf(current_account)).toNumber();
-    const new_gft_stbl_balance =  ((await stbl_contract.balanceOf(gft_contract.address)).div(d)).toNumber();
+    const new_gft_stbl_balance =  ((await stbl_contract.balanceOf(gft_contract.address)).div(d));
     const new_is_paused = (await gft_contract.paused())
     var new_is_shop;
     //owner automaticallly has the ShopRole but should not be seen as a shop
@@ -268,11 +268,11 @@ class App extends Component {
           <div>Network: {this.state.current_network}</div>
           <div>GFT contract owner: {this.state.gft_contract_owner}</div>
           <div>Your Account: {this.state.current_account}</div>
-          <div>Total supply of STBL tokens: {this.state.stbl_total_supply}</div>
-          <div>Your supply of STBL tokens: {this.state.stble_my_supply}</div>
-          <div>Total supply of GFT tokens: {this.state.gft_total_supply}</div>
-          <div>Your supply of GFT tokens: {this.state.gft_my_supply}</div>
-          <div>GFT contract's STBL balance (ie. funds): {this.state.gft_stbl_balance}</div>
+          <div>Total supply of STBL tokens: {this.state.stbl_total_supply.toString()}</div>
+          <div>Your supply of STBL tokens: {this.state.stble_my_supply.toString()}</div>
+          <div>Total supply of GFT tokens: {this.state.gft_total_supply.toString()}</div>
+          <div>Your supply of GFT tokens: {this.state.gft_my_supply.toString()}</div>
+          <div>GFT contract's STBL balance (ie. funds): {this.state.gft_stbl_balance.toString()}</div>
           <p></p>
           <div><form onSubmit={this.get_stbl}>
             <label>Get STBL tokens (they're free, only for this demo). Amount:
@@ -323,11 +323,11 @@ class App extends Component {
         <div>GFT contract owner: {this.state.gft_contract_owner}</div>
         <div>GFT contract paused: {this.state.is_paused}</div>
         <div>Your Account: {this.state.current_account}</div>
-        <div>Total supply of STBL tokens: {this.state.stbl_total_supply}</div>
-        <div>Your supply of STBL tokens: {this.state.stble_my_supply}</div>
-        <div>Total supply of GFT tokens: {this.state.gft_total_supply}</div>
-        <div>Your supply of GFT tokens: {this.state.gft_my_supply}</div>
-        <div>GFT contract's STBL balance (ie. funds): {this.state.gft_stbl_balance}</div>
+        <div>Total supply of STBL tokens: {this.state.stbl_total_supply.toString()}</div>
+        <div>Your supply of STBL tokens: {this.state.stble_my_supply.toString()}</div>
+        <div>Total supply of GFT tokens: {this.state.gft_total_supply.toString()}</div>
+        <div>Your supply of GFT tokens: {this.state.gft_my_supply.toString()}</div>
+        <div>GFT contract's STBL balance (ie. funds): {this.state.gft_stbl_balance.toString()}</div>
         <p></p><div><form onSubmit={this.get_stbl}>
           <label>Get STBL tokens (they're free, only for this demo).
           Amount:
